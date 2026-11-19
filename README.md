@@ -1,5 +1,7 @@
 # Gearbox
 
+[![CI](https://github.com/Jas-thinks/gearbox/actions/workflows/ci.yml/badge.svg)](https://github.com/Jas-thinks/gearbox/actions/workflows/ci.yml)
+
 Peer-to-peer camera-gear rental marketplace. Built as a **scalable, AWS-ready distributed system**:
 stateless Next.js API/UI, Redis for cache/rate-limit/idempotency, a transactional outbox feeding SQS,
 and an autoscaled worker fleet.
@@ -70,6 +72,10 @@ Switch `deploy.yml` to run on push to `main` once bootstrapped.
 
 `pnpm dev` · `pnpm build` · `pnpm lint` · `pnpm clean`
 
+## Contributing & security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
 ## License
 
-Private. Gearbox 2026.
+Proprietary. See [LICENSE](LICENSE).
