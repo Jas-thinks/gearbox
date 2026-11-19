@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/.turbo
+.git
+.github
+infra
+docs
+**/.env
+**/.env.local
+**/*.log
+**/tsconfig.tsbuildinfo

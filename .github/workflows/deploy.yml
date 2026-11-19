@@ -1,0 +1,46 @@
+name: Deploy (AWS ECS)
+
+# Manual until AWS is bootstrapped; then switch to `push: branches: [main]`.
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # GitHub OIDC → AWS, no long-lived keys
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push images
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          TAG: ${{ github.sha }}
+        run: |
+          docker build -f apps/web/Dockerfile \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }} \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
+            --build-arg NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }} \
+            -t $REGISTRY/gearbox-web:$TAG -t $REGISTRY/gearbox-web:latest .
+          docker build -f apps/worker/Dockerfile -t $REGISTRY/gearbox-worker:$TAG -t $REGISTRY/gearbox-worker:latest .
+          docker push --all-tags $REGISTRY/gearbox-web
+          docker push --all-tags $REGISTRY/gearbox-worker
+
+      - name: Rolling deploy (zero downtime)
+        run: |
+          for svc in web worker; do
+            aws ecs update-service --cluster gearbox-prod --service gearbox-$svc --force-new-deployment >/dev/null
+          done
+          aws ecs wait services-stable --cluster gearbox-prod --services gearbox-web gearbox-worker
