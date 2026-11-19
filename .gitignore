@@ -1,0 +1,32 @@
+# dependencies / build
+node_modules/
+.next/
+.turbo/
+dist/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# logs / OS / editor
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# legacy pre-monorepo folders (superseded by apps/*)
+/gearbox-web/
+/gearbox-backend/
+/gearbox-growth-os/
+/Gearbox-Pipeline/
